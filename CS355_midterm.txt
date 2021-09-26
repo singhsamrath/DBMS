@@ -1,0 +1,133 @@
+Name-Samrathpreet Singh Randhawa
+RollNo.-1801CS43
+
+#TaskA
+
+mysql -uroot -p
+
+create database dbMidTerm ;
+
+create User 'sam'@'localhost' IDENTIFIED BY 'ascii' ;
+
+grant all privileges on dbMidTerm.* to 'sam'@'localhost' ;
+
+exit
+
+mysql -usam -p
+
+use dbMidTerm ;
+
+create table Customers (
+	Cust_ID smallint ,
+	Gender char(1) NOT NULL CHECK (Gender IN ('M' , 'F')) ,
+	DoB date ,
+	primary key (Cust_ID));
+
+create table Cars (
+	Car_ID char(5) ,
+	Company varchar(20) NOT NULL ,
+	Price int ,
+	primary key (Car_ID) );
+
+create table Purchase (
+	Cust_ID smallint ,
+	Car_ID char(5) ,
+	DoP date ,
+	primary key (Cust_ID , Car_ID) );
+
+alter table Purchase add constraint cust_id_fk1 foreign key (Cust_ID) references Customers (Cust_ID) ;
+
+alter table Purchase add constraint car_id_fk2 foreign key (Car_ID) references Cars (Car_ID) ;
+
+
+insert into Cars values 
+	("c0001" , "maruti" , 100000) ,
+	("c0002" , "honda" , 200000) ,
+	("c0003" , "honda" , 300000) ,
+	("c0004" , "maruti" , 400000) ,
+	("c0005" , "toyota" , 100500) ,
+	("c0006" , "toyota" , 1050000) ,
+	("c0007" , "tesla" , 150000) ,
+	("c0008" , "tesla" , 100000) ,
+	("c0009" , "jeep" , 100000) ,
+	("c0010" , "jeep" , 100000) ;
+
+insert into customers values
+	(1,"M" , "1998-01-01"),
+	(2,"M" , "1998-01-01"),
+	(3,"M" , "1998-01-01"),
+	(4,"M" , "1998-01-01"),
+	(5,"M" , "1998-01-01"),
+	(6,"M" , "1998-01-01"),
+	(7,"M" , "1998-01-01"),
+	(8,"M" , "1998-01-01"),
+	(9,"M" , "1998-01-01"),
+	(10,"M" , "1998-01-01") ;
+insert into purchase values
+	(1,"c0001" , "2018-01-01"),
+	(1,"c0002" , "2018-01-01"),
+	(2,"c0001" , "2018-01-01"),
+	(3,"c0009" , "2018-01-01"),
+	(4,"c0003" , "2018-01-01"),
+	(5,"c0006" , "2018-01-01"),
+	(5,"c0004" , "2018-01-01"),
+	(3,"c0004" , "2018-01-01"),
+	(2,"c0003" , "2018-01-01"),
+	(1,"c0003" , "2018-01-01") ;
+
+
+#TaskB
+
+1.
+select company from cars where price > 200000
+group by company 
+having count(car_id) = (
+select max(x) from 
+(select company , count(car_id) as x from cars
+where price > 200000 
+group by company) as temp );
+
+2.
+select Customers.Cust_ID , Customers.Gender , Customers.DoB from Customers inner join purchase on customers.cust_id = purchase.cust_id 
+where purchase.dop in (
+select min(purchase.dop) from purchase) ;
+
+3.
+select customers.gender , count(purchase.car_id) from customers inner join purchase on purchase.cust_id = customers.cust_id group by gender ;
+
+4.
+select distinct Cars.Company, Cars.Car_ID from Cars
+inner join Purchase on Cars.Car_ID = Purchase.Car_ID
+where (Cars.Company, Purchase.DoP) IN(
+select Cars.Company, MAX(Purchase.DoP) from Cars
+inner join Purchase on Cars.Car_ID = Purchase.Car_ID group by Cars.Company);
+
+5.
+select distinct company from cars 
+where company like '%a%a%' and company not like '%a%a%a%' ;
+
+6.
+select Company,sum(if(Cust_ID is NULL,0,1)) as sold,if(sum(if(Cust_ID is NULL,0,1)) >=5,'*****',if(sum(if(Cust_ID is NULL,0,1)) = 0,'*','***')) as rating from Cars left join Purchase on Cars.Car_ID = Purchase.Car_ID group by Company;
+
+7.
+select distinct cust_id , gender , dob from customers natural join purchase where extract(month from dob) = extract(month from dop) and 
+extract(day from dob) = extract(day from dop);
+
+8.
+select distinct s.cust_id , s.gender , s.dob from
+(select * from customers natural join purchase) as s ,
+(select * from customers natural join purchase) as t
+where s.cust_id = t.cust_id and s.car_id != t.car_id ;
+
+9.
+select cust_id from purchase where car_id in 
+(select s.car_id from cars as s left join cars as t on s.company = "honda" and t.company="honda" and s.price < t.price where s.company = "honda" and t.car_id is NULL) ;
+
+10.
+create view unsoldCars as 
+select company , sum(if(cust_id is NULL),1,0) as x 
+from cars left join purchase on cars.car_id = purchase.car_id 
+group by company ;
+
+
+

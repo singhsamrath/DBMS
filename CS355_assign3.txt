@@ -1,0 +1,123 @@
+//Samrathpreet Singh Randhawa
+// 1801CS43
+
+mysql -u scot -p
+
+use dblab ;
+1.
+select sname 
+from suppliers 
+where suppliers.sid in (
+	select sid 
+	from sp 
+	group by sid 
+	having count(pid) > 1 
+	);
+
+2.
+//insert into sp values (
+	"O" , "1" , 1);
+
+select distinct sid 
+from sp 
+where qty > 5 ;
+
+3.
+select pid 
+from products
+where products.warrantyperiod in (
+	select max(warrantyperiod) 
+	from products
+	); 
+
+4.
+select sname 
+from suppliers
+where suppliers.sid not in (
+	select distinct sid 
+	from sp 
+	);
+
+5.
+select city , count(sid) as ns 
+from suppliers
+group by city ;
+
+
+6.
+select city 
+from (select city , count(sid) as ns from suppliers group by city) as temp
+where temp.ns in (
+	select min(mycount)
+	from (select city , count(sid) as mycount from suppliers group by city) as x );
+
+7.
+// insert into suppliers values 
+("S001" , "Radhika" , "Patna") ,
+("S002" , "Sohan" , "Patna") ;
+
+select if (
+	(select city from suppliers where sid = "s001") = 
+	(select city from suppliers where sid = "s002") ,
+	"yes" , "no" );
+
+8.
+//insert into sp values
+("M" , "1" , 8);
+
+select pid 
+from sp
+group by pid
+having sum(qty) >= 5 and
+count(sid) >= 5 ;
+
+9.//insert into suppliers values
+("S003" , "Tina" , "Chandigarh");
+
+insert into sp values
+("S003" , "4" , 3) ,
+("S003" , "2" , 2) , 
+("S003" , "3" , 5) ;
+
+select pid , qty 
+from sp
+where sid = "S003" ;
+
+10.
+//insert into products values
+("21" , "pen" , 187 , "2020-09-09") , 
+("23" , "guitar" , 2 , "2020-09-09") ;
+
+select p1.pid , p1.pname , p1.warrantyperiod , p1.dom
+from products as p1 , products as p2
+where (p1.pname = p2.pname and
+p1.warrantyperiod != p2.warrantyperiod) ;
+
+11.
+select sp.sid , suppliers.city , sp.pid , sp.qty
+from suppliers , sp
+where suppliers.sid = sp.sid ;
+
+12.
+//insert into suppliers values
+("S" , "Dharmesh" , "Patna") ;
+
+//insert into products values
+("22" , "screw" , 13 , "2004-01-01");
+
+//insert into sp values
+("S" , "22" , 100 ) ;
+
+select if (
+(select count(sid) from sp where sid in 
+(select sid from suppliers where sname = "Dharmesh") and 
+pid in 
+(select pid from products where pname = "screw")
+) > 0 , "yes" , "no") ;
+
+
+
+
+
+
+

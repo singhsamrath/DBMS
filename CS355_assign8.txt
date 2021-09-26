@@ -1,0 +1,110 @@
+#Name - Samrathpreet Singh Randhawa
+#RollNo - 1801CS43
+
+1.
+alter table suppliers add status varchar(20) after dob ;
+delimiter $$
+create procedure procSupStatus(
+	in tsid varchar(10))
+
+	begin
+	declare td date ;
+	declare age int ;
+	declare x varchar(20) ;
+	select dob into td from suppliers where sid = tsid ;
+	select timestampdiff(year , td , curdate()) into age ;
+	if age > 60 then
+	set x = 'senior citizen' ;
+	else 
+	set x = 'non-senior citizen' ;
+	end if ;
+	update suppliers set status = x where sid = tsid ;
+	end$$
+
+delimiter ;
+
+//Make a procedure to iterate over all rows and call procSupStatus(tsid) --
+
+delimiter $$
+	create procedure procAllSupStatus()
+	begin
+	declare idcol varchar(10) ;
+	select min(sid) into idcol from suppliers ;
+	while idcol is not null do
+	call procSupStatus(idcol) ;
+	select min(sid) into idcol from suppliers where sid > idcol ;
+	end while ;
+	end$$
+
+delimiter ;
+
+call procAllSupStatus() ;
+2.
+delimiter $$
+create procedure procProdInsert (
+	in tpid varchar(10) ,
+	in tpname varchar (10) ,
+	in tWarrantyPeriod int ,
+	in tDoM date )
+
+	begin
+	declare isthere int default 0 ;
+	select exists(select * from products where pid = tpid) into isthere ;
+
+	if isthere = 0 then
+		insert into products values (
+		tpid , tpname , tWarrantyPeriod , tDoM );
+	end if ;
+	end$$
+
+delimiter ;
+
+3.
+//There is ambhiguity in the question --
+
+//If list to be considered is the date of supply which is before 1yr and after 1yr given date do 1st .
+delimiter $$
+	create procedure procSPDateSupply(
+	in dt date )
+
+	begin
+	select distinct * from suppliers where sid in (
+		select sid from sp where abs(timestampdiff(year , dos , dt)) > 1 ) ;
+	end$$
+
+delimiter ;
+
+//If list to be considered is the date of supply which is between 1yr before and after the given date do 2nd .
+delimiter $$
+	create procedure procSPDateSupply(
+	in dt date )
+
+	begin
+	select distinct * from suppliers where sid in (
+		select sid from sp where abs(timestampdiff(year , dos , dt)) <= 1 ) ;
+	end$$
+
+delimiter ;
+
+4.
+delimiter $$
+
+	create function funSPGenString(
+	tsid varchar(10) , tpid varchar(10))
+	returns varchar(10)
+	deterministic
+	begin
+	declare dt date ;
+	declare ans varchar(10);
+	set ans = substr(tsid , 1 ,3) ;
+	set ans = concat(ans , substr(tpid , 1 , 3)) ;
+	select dos into dt from sp where sid = tsid and pid = tpid ;
+	set ans = concat(ans , extract(day from dt));
+	set ans = concat(ans , substr(extract(year from dt) , 3, 2));
+	return (ans) ;
+	end$$
+delimiter ;
+
+
+
+

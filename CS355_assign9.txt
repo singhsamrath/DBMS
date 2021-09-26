@@ -1,0 +1,151 @@
+//Name-Samrathpreet Singh Randhawa
+//RollNo.-1801CS43
+
+#Task1
+
+create table account (
+	anum int(5) ,
+	bname varchar(20) ,
+	balance int ,
+	primary key (anum)) ;
+
+create table custAcc (
+	anum int(5) ,
+	cname varchar(20) ,
+	primary key (anum , cname)) ;
+
+#Task2
+
+1.
+
+delimiter $$ ;
+
+create procedure procAccDummyData(in n int)
+	begin
+	declare tanum , tbalance int ;
+	declare tbname varchar(20) ;
+	declare i int default 0 ;
+	declare isthere int default 0 ;
+
+	while i < n do
+	set tanum = round((89998*rand() + 10000),0);
+
+	select exists(select * from account where anum = tanum) into isthere ;
+
+	if isthere = 0 then
+	set tbname = concat('rnd' , i);
+	set tbalance = round((99998*rand() + 1) ,0);
+	insert into account values (tanum , tbname , tbalance) ;
+	set i = i + 1 ;
+	end if ;
+	end while ;
+
+	end$$
+
+delimiter ;
+
+call procAccDummyData(10) ;
+
+2.
+delimiter $$ ;
+
+create function funWithdraw(tanum int , amount int)
+returns int 
+deterministic
+	begin
+	declare availbal int ;
+
+	select balance into availbal from account where anum = tanum ;
+	
+	if amount <= availbal then
+	set availbal = availbal - amount ;
+	update account set balance = availbal where anum = tanum ;
+	else 
+	set availbal = -1 ;
+	end if ;
+	return(availbal) ;
+	end$$
+
+delimiter ; 
+
+3.
+a)
+
+delimiter $$ ;
+
+create trigger before_custAcc_insert 
+before insert
+on custAcc for each row
+	begin
+	declare ErrMsg varchar(255);
+	declare isthere int default 0 ;
+
+	select exists(select * from account where anum = new.anum) into isthere ;
+
+	if isthere = 0 then 
+	set ErrMsg = concat('Account number',new.anum,' does not exists in any bank');
+	signal sqlstate '45000' set message_text = ErrMsg ;
+	end if ;
+	end$$
+
+delimiter ;
+
+
+b)
+
+create table accBalanceUpdate(anum int(5) , balance int , dou date , tou timestamp default current_timestamp);
+
+delimiter $$ ;
+
+create trigger before_account_update
+before update
+on account for each row
+	begin
+
+	if old.anum <=> new.anum && old.balance <> new.balance then
+	insert into accBalanceUpdate(anum,balance,dou) values (old.anum , old.balance , curdate());
+	end if ;
+
+	end$$ 
+
+delimiter ;
+
+
+#REPORT
+
+Account Table -
++-------+-------+---------+
+| anum  | bname | balance |
++-------+-------+---------+
+| 34727 | rnd8  |    8799 |
+| 46682 | rnd6  |   19133 |
+| 65407 | rnd9  |   81430 |
+| 70606 | rnd2  |     295 |
+| 76045 | rnd7  |    9527 |
+| 76829 | rnd0  |   99665 |
+| 78003 | rnd1  |   78804 |
+| 85030 | rnd4  |   27822 |
+| 90102 | rnd5  |   61554 |
+| 99498 | rnd3  |   96339 |
++-------+-------+---------+
+
+Running several funWithdraw -
+
+select funWithdraw(34727 , 700);
+select funWithdraw(34727 , 700);
+select funWithdraw(46682 , 700);
+select funWithdraw(99498, 50);
+select funWithdraw(99498 , 50);
+select funWithdraw(99498 , 50);
+
+AccBalanceUpdate Table -
++-------+---------+------------+---------------------+
+| anum  | balance | dou        | tou                 |
++-------+---------+------------+---------------------+
+| 34727 |    8799 | 2020-11-06 | 2020-11-06 12:36:07 |
+| 34727 |    8099 | 2020-11-06 | 2020-11-06 12:36:38 |
+| 46682 |   19133 | 2020-11-06 | 2020-11-06 12:36:44 |
+| 99498 |   96339 | 2020-11-06 | 2020-11-06 12:37:02 |
+| 99498 |   96289 | 2020-11-06 | 2020-11-06 12:37:04 |
+| 99498 |   96239 | 2020-11-06 | 2020-11-06 12:37:05 |
++-------+---------+------------+---------------------+

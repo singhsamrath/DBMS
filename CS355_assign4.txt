@@ -1,0 +1,119 @@
+//Name-Samrathpreet Singh Randhawa
+//RollNo.-1801CS43
+
+#TaskA
+show create table sp ;
+alter table sp drop foreign key supplier_id ;
+alter table sp drop foreign key product_id ;
+
+update suppliers set sid = concat('sup' , sid);
+update products set pid = concat_ws('-' , 'prd' , pid) ;
+
+update sp set sid = concat('sup' , sid);
+update sp set pid = concat_ws('-' , 'prd' , pid) ;
+
+alter table sp add constraint supplier_id foreign key(sid) references suppliers(sid);
+alter table sp add constraint product_id foreign key(pid) references products(pid);
+
+alter table suppliers add email varchar(20) ;
+alter table products add weight int ;
+
+update suppliers set email = "mohan11@gmail.com" where sid = "sup000A" ;
+update suppliers set email = "ram99@gmail.com" where sid = "sup000B" ;
+update suppliers set email = "aryan@gmail.com" where sid = "sup000C" ;
+update suppliers set email = "sunny@yahoo.com" where sid = "sup000D" ;
+update suppliers set email = "sameer@outlook.com" where sid = "sup000E" ;
+update suppliers set email = "devanshu@hotmail.com" where sid = "sup000F" ;
+update suppliers set email = "prem@gmail.com" where sid = "sup000G" ;
+update suppliers set email = "saiyam@yahoo.com" where sid = "sup000H" ;
+update suppliers set email = "sushant@gmail.com" where sid = "sup000I" ;
+update suppliers set email = "saksham@gmail.com" where sid = "sup000J" ;
+update suppliers set email = "mkk@gmail.com" where sid = "sup000K" ;
+update suppliers set email = "avi35@gmail.com" where sid = "sup000L" ;
+update suppliers set email = "lucky@yahoo.com" where sid = "sup000M" ;
+update suppliers set email = "vsingh@gmail.com" where sid = "sup000N" ;
+update suppliers set email = "rehaan@gmail.com" where sid = "sup000O" ;
+update suppliers set email = "coolbuddy@gmail.com" where sid = "sup000P" ;
+update suppliers set email = "john@gmail.com" where sid = "sup000Q" ;
+update suppliers set email = "manoj@outlook.com" where sid = "sup000R" ;
+update suppliers set email = "dhar89@gmail.com" where sid = "sup000S" ;
+update suppliers set email = "rad65queen@gmail.com" where sid = "supS001" ;
+update suppliers set email = "sohan@gmail.com" where sid = "supS002" ;
+update suppliers set email = "ttk@yahoo.com" where sid = "supS003" ;
+
+update products set weight = 19 where pid = "prd-1" ;
+update products set weight = 100 where pid = "prd-10" ;
+update products set weight = 1000 where pid = "prd-11" ;
+update products set weight = 2000 where pid = "prd-12" ;
+update products set weight = 2000 where pid = "prd-13" ;
+update products set weight = 200 where pid = "prd-14" ;
+update products set weight = 2004 where pid = "prd-15" ;
+update products set weight = 204 where pid = "prd-16" ;
+update products set weight = 304 where pid = "prd-17" ;
+update products set weight = 404 where pid = "prd-18" ;
+update products set weight = 404 where pid = "prd-19" ;
+update products set weight = 6000 where pid = "prd-2" ;
+update products set weight = 404 where pid = "prd-20" ;
+update products set weight = 4000 where pid = "prd-21" ;
+update products set weight = 5000 where pid = "prd-22" ;
+update products set weight = 6000 where pid = "prd-23" ;
+update products set weight = 7600 where pid = "prd-3" ;
+update products set weight = 8700 where pid = "prd-4" ;
+update products set weight = 8709 where pid = "prd-5" ;
+update products set weight = 709 where pid = "prd-6" ;
+update products set weight = 9909 where pid = "prd-7" ;
+update products set weight = 1000 where pid = "prd-8" ;
+update products set weight = 10000 where pid = "prd-9" ;
+
+
+#TaskB
+1.
+select substring_index(pid,'-',-1) as number_part from products;
+
+2.
+select concat('*' , sid , '@' , pid , '#') as orderid from sp ;
+
+3.
+select replace(sid , 'sup' , 'sppl') as Replaced from suppliers ;
+
+4.
+select distinct substring_index(email , '@' , -1) as domain_name from suppliers;
+
+5.
+select pid , weigth as grams , (weight/1000) as kg from products ;
+
+6.
+select pid , if (strcmp(substring_index(pid,'-',-1) , reverse(substring_index(pid,'-',-1))) = 0 , "yes" , "no") as ispalindrome from products ;
+
+7.
+select sid , sname , city , email from suppliers where sid in (
+	select sid from sp where pid in (
+		select pid from products where warrantyperiod > 2 )) ;
+8.
+select sid 
+from sp
+group by sid 
+having count(pid) = (select count(pid) from products) ;
+
+9.
+create view not_supplied as
+select *from products
+where pid not in (
+	select distinct pid from sp) ;
+
+10.
+create view myview as
+select distinct sid from sp 
+where sid not in (
+	select sid from sp where qty > 5 ) ;
+
+
+
+
+
+
+
+
+
+
+

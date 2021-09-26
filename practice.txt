@@ -1,0 +1,68 @@
+Name - Samrathpreet Singh Randhawa
+RollNo. - 1801CS43
+
+mysql -u root -p
+show databases;
+create database dblab ;
+show databases;
+use dblab ;
+create table suppliers(SID varchar(10) , SName varchar(10) , City varchar(10));
+show tables ;
+desc suppliers ;
+create table products(PID varchar(10) , PName varchar(10) , WarrantyPeriod int);
+create table sp(SID varchar(10) , PID varchar(10));
+show tables;
+insert into suppliers values 
+	('A' , 'Mohan' , 'Jalandhar'),
+	('B' , 'Ram' , 'Jaipur'),
+	('C' , 'Aryan' , 'Jaipur'),
+	('D' , 'Sunny' , 'Varanasi'),
+	('E' , 'Sameer' , 'Patna'),
+	('F' , 'Devanshu' , 'Patna'),
+	('G' , 'Prem' , 'Bombay'),
+	('H' , 'Saiyam' , 'Chandigarh'),
+	('I' , 'Jay' , 'Kota'),
+	('J' , 'Avishek' , 'Surat');
+insert into products values
+	('0989' , 'bike' , 20),
+	('643232' , 'battery' , 48),
+	('732122' , 'ac' , 24),
+	('82323' , 'cooler' , 12),
+	('933221' , 'scooter' , 24),
+	('12321' , 'sofa' , 12),
+	('21232' , 'laptop' , 11),
+	('345432' , 'curtains' , 10),
+	('423456' , 'tshirt' , 4),
+	('5009' , 'pant' , 4);
+insert into sp values 
+	('A' , '732122'),
+	('B' , '933221'),
+	('C' , '732122'),
+	('D' , '21232'),
+	('E' , '732122'),
+	('F' , '4323456'),
+	('A' , '12321'),
+	('H' , '732122'),
+	('I' , '12321'),
+	('A' , '5009');
+
+select * from suppliers ;
+select * from products ;
+select * from sp ;
+
+create user 
+	'scot'@'localhost' identified by
+	'tiger' ;
+grant all privileges on dblab.* to 'scot'@'localhost';
+exit
+mysql -u scot -p
+show databases ;
+use dblab ;
+show tables;
+select * from suppliers ;
+update suppliers
+	set City = 'ModelTown'
+	where SName = 'Aryan' ;
+select * from suppliers ;
+select * from products ;
+select * from sp ;	

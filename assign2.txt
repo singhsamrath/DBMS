@@ -1,0 +1,107 @@
+Name-Samrathpreet Singh Randhawa
+Rollno-1801CS43
+
+mysql -u scot -p
+
+//since there is no duplicate value in suppliers therefore no need to delete any entry.
+
+alter table suppliers add constraint supplier_id primary key (SID) ;
+
+insert into suppliers values
+	("S" , "sushant" , "Patna"),
+	("T" , "saksham" , "mandi"),
+	("K" , "katy" , "delhi"),
+	("L" , "aviral" , "ranchi"),
+	("M" , "lakshya" , "amritsar"),
+	("N" , "vaibhav" , "karnal"),
+	("O" , "rehaan" , "kolkata"),
+	("P" , "samantha" , "delhi"),
+	("Q" , "john" , "mumbai"),
+	("R" , "manoj" , "kanpur");
+
+//since there is no duplicate value in products therefore no need to delete any entry .
+
+alter table products add constraint prod_id primary key(PID) ;
+
+insert into products values
+	("17" , "copy" , 1),
+	("1" , "pen" , 0),
+	("20" , "pencil" , 0),
+	("16" , "iphone" , 2),
+	("18" , "teddy-bear" , 3),
+	("6" , "watch" , 3),
+	("11" , "piano" , 2),
+	("9" , "guitar" , 2),
+	("3" , "television" , 4),
+	("13" , "fridge" , 4);
+
+delete from sp;
+alter table sp add qty smallint;
+alter table sp add primary key(SID,PID);
+desc sp;
+alter table sp add constraint supplier_id foreign key(SID) references suppliers(SID);
+alter table sp add constraint product_id foreign key(PID) references products(PID);
+
+insert into sp values
+	("C","2",200),
+	("A","1",100),
+	("B","1",20),
+	("D","3",200),
+	("D","4",20),
+	("E","5",100),
+	("E","6",200),
+	("F","4",100),
+	("F","3",200),
+	("G","12",100),
+	("H","15",200),
+	("K","1",200),
+	("L","2",100),
+	("M","3",200),
+	("N","4",100);
+
+select* from suppliers where City="patna" or City="mumbai";
+
+select PName from products where WarrantyPeriod between 2 and 4 ;
+
+select sum(qty) from sp where PID = "2" ;
+
+select *from suppliers where sname like "%a%a%" ;
+select pname from products where pname like "%e" or "%E" ;
+select pname from products where pname regexp 'e$' ;
+
+alter table products add DoM date ;
+select DoM from products ;
+update products set DoM="2020-02-02" where PID="1";
+update products set DoM="2020-02-03" where PID="2";
+update products set DoM="2020-02-03" where PID="3";
+update products set DoM="2020-04-04" where PID="4";
+update products set DoM="2020-07-04" where PID="5";
+update products set DoM="2020-07-10" where PID="6";
+update products set DoM="2020-07-15" where PID="7";
+update products set DoM="2020-05-15" where PID="8";
+update products set DoM="2020-06-15" where PID="9";
+update products set DoM="2020-06-08" where PID="10";
+update products set DoM="2020-06-09" where PID="11";
+update products set DoM="2020-06-10" where PID="12";
+update products set DoM="2020-03-10" where PID="13";
+update products set DoM="2020-04-10" where PID="14";
+update products set DoM="2019-03-12" where PID="15";
+update products set DoM="2019-03-22" where PID="16";
+update products set DoM="2020-03-20" where PID="17";
+update products set DoM="2020-03-04" where PID="18";
+update products set DoM="2020-03-04" where PID="19";
+update products set DoM="2020-03-08" where PID="20";
+
+
+#Additional Comment/Note::
+As previously my products table PID had random values so this time I updated them to form a continuous spectrum using : 
+update products set PID="2" where PID="0989" ;
+update products set PID="4" where PID="12321" ;
+update products set PID="5" where PID="21232" ;
+update products set PID="7" where PID="345432" ;
+update products set PID="8" where PID="423456" ;
+update products set PID="10" where PID="5009" ;
+update products set PID="12" where PID="643232" ;
+update products set PID="14" where PID="732122" ;
+update products set PID="15" where PID="82323" ;
+update products set PID="19" where PID="933221" ;

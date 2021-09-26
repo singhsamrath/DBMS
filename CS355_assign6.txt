@@ -1,0 +1,240 @@
+//Name - Samrathpreet Singh Randhawa
+//Roll No - 1801CS43
+
+#Task-1.0
+
+mysql -u root -p
+create database robbersgang ;
+grant all privileges on robbersgang.*  to 'scot'@'localhost' ;
+set global local_infile = 1;
+quit 
+
+mysql --local-infile=1 -u scot -p 
+
+use robbersgang ;
+
+1.
+create table robbers(rname varchar(30) , age int , yinprison int ) ;
+
+load data local infile 'C://Users//Samrath//Desktop//labwork//robbers.txt' into table robbers fields terminated by '	' lines terminated by '\n' ;
+2.
+create table banks(
+	bname varchar(30) , city varchar(30) , no_accounts int , security_lvl varchar(30)) ;
+
+load data local infile 'C://Users//Samrath//Desktop//labwork//banks.txt' into table banks fields terminated by '	' lines terminated by '\n' ;
+
+3.
+create table hasaccounts (
+	rname varchar(30) , bname varchar(30) , city varchar(30)) ;
+
+load data local infile 'C://Users//Samrath//Desktop//labwork//hasaccounts.txt' into table hasaccounts fields terminated by '	' lines terminated by '\n' ;
+
+4.
+create table hasskills (
+	rname varchar(30) , skill_desc varchar(30) , prank int , grade varchar(10)) ;
+
+
+load data local infile 'C://Users//Samrath//Desktop//labwork//hasskills.txt' into table hasskills fields terminated by '	' lines terminated by '\n' ;
+
+5.
+create table robberies (
+	bname varchar(30) , city varchar(30) , dor date , amnt int);
+
+load data local infile 'C://Users//Samrath//Desktop//labwork//robberies.txt' into table robberies fields terminated by '	' lines terminated by '\n' ;
+
+6.
+create table accomplices (
+	rname varchar(30) , bname varchar(30) , city varchar(30) , dor date , share int);
+
+load data local infile 'C://Users//Samrath//Desktop//labwork//accomplices.txt' into table accomplices fields terminated by '	' lines terminated by '\n' ;
+
+7.
+create table plans (
+	bname varchar(30) , city varchar(30) , assumed_date date , pneeded int);
+
+load data local infile 'C://Users//Samrath//Desktop//labwork//plans.txt' into table plans fields terminated by '	' lines terminated by '\n' ;
+
+#Task1.1
+
+1.
+alter table robbers add rid varchar(10) first ;
+
+update robbers set rid = (
+	select r from
+		(select row_number() over (order by rname) as r , rname from robbers)as t 
+	where robbers.rname = t.rname);
+
+alter table robbers add constraint rid_pk primary key (rid) ;
+
+2.
+alter table hasaccounts add rid varchar(10) first ;
+
+update hasaccounts set rid = (
+	select id from
+		(select rid as id , rname from robbers) as temp
+	where temp.rname = hasaccounts.rname);
+
+alter table hasaccounts drop rname ;
+
+alter table hasaccounts add constraint rid_fk1 foreign key (rid) references robbers(rid) ;
+
+3.
+alter table hasskills add rid varchar(10) first ;
+
+update hasskills set rid = (
+	select id from 
+		(select rid as id , rname from robbers)as temp
+	where temp.rname = hasskills.rname) ;
+
+alter tabel hasskills drop rname ;
+alter table hasskills add constraint rid_fk2 foreign key (rid) references robbers(rid) ;
+
+4.
+alter table accomplices add rid varchar(10) first ;
+
+update accomplices set rid = (
+	select id from 
+		(select rid as id , rname from robbers)as temp
+	where temp.rname = accomplices.rname) ;
+
+alter tabel accomplices drop rname ;
+alter table accomplices add constraint rid_fk3 foreign key (rid) references robbers(rid) ;
+
+#Task1.2
+
+1.
+create table skills (skill_desc varchar(30)) ;
+insert into skills(
+	select distinct skill_desc from hasskills) ;
+
+alter table skills add constraint sk_pk primary key (skill_desc) ;
+
+alter table hasskills add constraint skill_fk1 foreign key (skill_desc) references skills(skill_desc) ;
+
+
+#Task1.3
+
+1.
+alter table banks add bid int first ;
+
+update banks set bid = (
+	select r from (
+		select row_number() over(order by bname , city) as r , bname , city from banks )as temp
+	where temp.bname = banks.bname and temp.city = banks.city) ;
+
+alter table banks add constraint bid_pk primary key (bid) ;
+
+2.
+alter table hasaccounts add bid int after rid ;
+
+update hasaccounts set bid = (
+	select bid from (
+		select bid , bname , city from banks) as t
+	where t.bname = hasaccounts.bname and t.city = hasaccounts.city) ;
+
+alter table hasaccounts drop bname ;
+alter table hasaccounts drop city ;
+alter table hasaccounts add constraint bid_fk1 foreign key (bid) references banks(bid) ;
+
+3.
+alter table accomplices add bid int after rid ;
+
+update accomplices set bid = (select bid from (
+	select bid , bname , city from banks) as t
+where t.bname = accomplices.bname and t.city = accomplices.city) ;
+
+alter table accomplices add constraint bid_fk2 foreign key (bid) references banks(bid) ;
+alter table accomplices drop bname ;
+alter table accomplices drop city ;
+
+4.
+alter table plans add bid int first ;
+
+update plans set bid = (select bid from (
+	select bid , bname , city from banks) as t
+where t.bname = plans.bname and t.city = plans.city) ;
+
+alter table plans add constraint bid_fk3 foreign key (bid) references banks(bid) ;
+alter table plans drop bname ;
+alter table plans drop city ;
+
+5.
+alter table robberies add bid int first ;
+
+update robberies set bid = (select bid from (
+	select bid , bname , city from banks) as t
+where t.bname = robberies.bname and t.city = robberies.city) ;
+
+alter table robberies add constraint bid_fk4 foreign key (bid) references banks(bid) ;
+alter table robberies drop bname ;
+alter table robberies drop city ;
+
+
+#Task2
+
+1.
+create view v1 as select rid , rname from robbers where yinprison > 4 and age < 40 ;
+
+2.
+create view v2 as select rid , rname from robbers where robbers.rid not in (
+	select rid from accomplices where extract(year from dor) between 2005 and 2010) ;
+
+3.
+create view v3 as select rname , skill_desc from robbers join hasskills on robbers.rid = hasskills.rid 
+	where (age , skill_desc) in (
+		select max(age) , skill_desc from robbers join hasskills on robbers.rid = hasskills.rid 
+		group by skill_desc) ;
+4.
+create view v4 as select bid , bname , city from banks 
+where bid in (select bid from robberies group by bid having count(dor) > 1) ;
+
+5.
+create view v5 as 
+select banks.bid , bname , city , dor , amnt from banks , robberies
+where banks.bid = robberies.bid and city = "chicago" 
+order by dor desc limit 5 ; 
+
+6.
+create view v6 as 
+select rname , ifnull(sum(share) , 0) as robbed_so_far from robbers left join accomplices on robbers.rid = accomplices.rid
+group by robbers.rid ;
+
+7.
+create view v7 as 
+select rname , count(skill_desc) as count_of_skills from
+robbers left join hasskills on robbers.rid = hasskills.rid 
+group by robbers.rid ;
+
+8.
+create view v8 as 
+select bid , bname , city from banks where bid in (
+	select bid from plans where adddate(curdate() , interval 3 month) >= assumed_date and assumed_date >= curdate() );
+
+9.
+create view v9 as 
+select rname from robbers where rid in (
+	select rid from hasaccounts where bid in (
+		select bid from plans where adddate(curdate() , interval 3 month) >= assumed_date and assumed_date >= curdate())) ;
+
+10.
+create view v10 as 
+select bname , city , security_lvl , ifnull(count(dor) , 0) as times_robbed 
+from banks left join robberies
+on banks.bid = robberies.bid
+group by banks.bid ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

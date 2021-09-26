@@ -1,0 +1,288 @@
+Name-Samrathpreet Singh Randhawa
+RollNo.-1801CS43
+
+==================================================================================================================================================================
+#Task1.1 - SubTask A
+mysql -u root -p 
+
+set global local_infile = 1 ;
+quit 
+
+mysql --local-infile=1 -usam -p
+
+use dbmidterm ;
+
+create table trans(
+	series_ref varchar(20) ,
+	Prd varchar(20) ,
+	data_val varchar(20) ,
+	Supp varchar(20) ,
+	Status char(1) ,
+	units varchar(30) ,
+	magnitude smallint ,
+	Sub varchar(100) ,
+	Grp varchar(100) ,
+	title1 varchar(30) ,
+	title2 varchar(60) ,
+	title3 varchar(60) ,
+	title4 varchar(60) ,
+	title5 varchar(60) ) ; 
+
+load data local infile 'C://Users//Samrath//Desktop//transactions.csv' into table trans fields terminated by ',' lines terminated by '\n' ;
+
+delete from trans where series_ref = "Series_reference" ;
+
+#Task1.2 - SubTask B
+Set Profiling = 1 ;
+
+1.
+Select Prd , status , magnitude , data_val from trans where series_ref = "ECTQ.S1GA8" ;
+show profiles ;
+
+Avg_time = 0.0101 
+
+2.
+Select prd , status , magnitude , data_val from trans where series_ref between "ECTQ.S1GA1" and "ECTQ.S1GA8" ;
+Show profiles ;
+
+Avg_time = 0.01085
+
+3.
+Update trans set series_ref = "ECTR.S1GA1" where series_ref = "ECTQ.S1GA1" ;
+Update trans set series_ref = "ECTS.S1GA1" where series_ref = "ECTR.S1GA1" ;
+Update trans set series_ref = "ECTT.S1GA1" where series_ref = "ECTS.S1GA1" ;
+Update trans set series_ref = "ECTU.S1GA1" where series_ref = "ECTT.S1GA1" ;
+Update trans set series_ref = "ECTV.S1GA1" where series_ref = "ECTU.S1GA1" ;
+
+Show profiles; 
+
+Avg_time = 0.26282
+//Set to original
+4.
+Update trans set series_ref = "ECTQ.S1GA123" where series_ref between "ECTQ.S1GA1" and "ECTQ.S1GA3";
+Update trans set series_ref = "ECTQ.S1GA456" where series_ref between "ECTQ.S1GA4" and "ECTQ.S1GA6";
+Update trans set series_ref = "ECTQ.S1GA78" where series_ref between "ECTQ.S1GA7" and "ECTQ.S1GA8";
+Update trans set series_ref = "ECTQ.S1GT1234" where series_ref between "ECTQ.S1GT1" and "ECTQ.S1GT4";
+Update trans set series_ref = "ECTQ.S1GT5678" where series_ref between "ECTQ.S1GT5" and "ECTQ.S1GT8";
+
+show profiles ;
+
+Avg_time = 0.4801
+
+5.
+Insert into trans values ("ABCDDF" , "203" , "1000.2" , "abc" , "F" , "rupe" , 2 , "offline" , "total" , "actual" , "co" , "dd" , "ee" , "ff" );
+Insert into trans values ("JHGFS" , "203" , "1000.2" , "abc" , "F" , "rupe" , 2 , "offline" , "total" , "actual" , "co" , "dd" , "ee" , "ff" );
+Insert into trans values ("XYZABC" , "203" , "1000.2" , "abc" , "F" , "rupe" , 2 , "offline" , "total" , "actual" , "co" , "dd" , "ee" , "ff" );
+Insert into trans values ("DEFGHI" , "203" , "1000.2" , "abc" , "F" , "rupe" , 2 , "offline" , "total" , "actual" , "co" , "dd" , "ee" , "ff" );
+Insert into trans values ("HKGHJK" , "203" , "1000.2" , "abc" , "F" , "rupe" , 2 , "offline" , "total" , "actual" , "co" , "dd" , "ee" , "ff" );
+
+show profiles ;
+
+Avg_time = 0.09754
+
+#Task1.3 - SubTask C
+
+create table newtrans like trans ;
+insert newtrans select * from trans ;
+create index id on newtrans(series_ref) ;
+
+#Task 1.4 - SubTask D
+1.
+Select Prd , status , magnitude , data_val from newtrans where series_ref = "ECTQ.S1GA8" ;
+
+Show profiles ;
+
+Avg_time = 0.00047
+
+2.
+Select prd , status , magnitude , data_val from newtrans where series_ref between "ECTQ.S1GA1" and "ECTQ.S1GA8" ;
+show profiles ;
+
+Avg_time = 0.00142
+
+3.
+Update newtrans set series_ref = "ECTR.S1GA1" where series_ref = "ECTQ.S1GA1" ;
+Update newtrans set series_ref = "ECTS.S1GA1" where series_ref = "ECTR.S1GA1" ;
+Update newtrans set series_ref = "ECTT.S1GA1" where series_ref = "ECTS.S1GA1" ;
+Update newtrans set series_ref = "ECTU.S1GA1" where series_ref = "ECTT.S1GA1" ;
+Update newtrans set series_ref = "ECTV.S1GA1" where series_ref = "ECTU.S1GA1" ;
+
+Show profiles; 
+
+Avg_time = 0.3542
+//Set to original
+4.
+Update newtrans set series_ref = "ECTQ.S1GA123" where series_ref between "ECTQ.S1GA1" and "ECTQ.S1GA3";
+Update newtrans set series_ref = "ECTQ.S1GA456" where series_ref between "ECTQ.S1GA4" and "ECTQ.S1GA6";
+Update newtrans set series_ref = "ECTQ.S1GA78" where series_ref between "ECTQ.S1GA7" and "ECTQ.S1GA8";
+Update newtrans set series_ref = "ECTQ.S1GT1234" where series_ref between "ECTQ.S1GT1" and "ECTQ.S1GT4";
+Update newtrans set series_ref = "ECTQ.S1GT5678" where series_ref between "ECTQ.S1GT5" and "ECTQ.S1GT8";
+
+show profiles ;
+
+Avg_time = 0.4824
+
+5.
+Insert into newtrans values ("ABCDDF" , "203" , "1000.2" , "abc" , "F" , "rupe" , 2 , "offline" , "total" , "actual" , "co" , "dd" , "ee" , "ff" );
+Insert into newtrans values ("JHGFS" , "203" , "1000.2" , "abc" , "F" , "rupe" , 2 , "offline" , "total" , "actual" , "co" , "dd" , "ee" , "ff" );
+Insert into newtrans values ("XYZABC" , "203" , "1000.2" , "abc" , "F" , "rupe" , 2 , "offline" , "total" , "actual" , "co" , "dd" , "ee" , "ff" );
+Insert into newtrans values ("DEFGHI" , "203" , "1000.2" , "abc" , "F" , "rupe" , 2 , "offline" , "total" , "actual" , "co" , "dd" , "ee" , "ff" );
+Insert into newtrans values ("HKGHJK" , "203" , "1000.2" , "abc" , "F" , "rupe" , 2 , "offline" , "total" , "actual" , "co" , "dd" , "ee" , "ff" );
+
+show profiles ;
+
+Avg_time = 0.21875
+
+
+#Task 1.5 - SubTask D
+1.Select statement is much faster in indexed table compared to non - indexed . Approx 15-25 times faster .
+
+2.Update statement is slower in indexed table compared to non - indexed . Approx 1.2 - 1.5 times it runs faster on non - indexed .
+
+3.Insert Statement is also slower in indexed table compared to non - indexed . Approx 2 times it runs faster on non - indexed
+
+
+
+===================================================================================================================================================================
+===================================================================================================================================================================
+#CSV File used 
+
+50000 Sales Records - Contains the sales of various products in different parts of the world and different countries .
+12 diff products with 215 countries . OrderId is unique reference . Tells the mode of order offline vs online . Priority M,H,L,C .
+Units of products sold , price per product and cost per product is listed .
+
+
+#TASK 1.1 - SubTask A
+
+mysql -u root -p 
+
+set global local_infile = 1 ;
+quit 
+
+mysql --local-infile=1 -usam -p
+
+use dbmidterm ;
+
+create table Sales (
+	region varchar(20) , 
+	country varchar(20) ,
+	item_type varchar(20) ,
+	sale_channel varchar(20) ,
+	priority char(1) ,
+	order_id int ,
+	unit_sold int ,
+	unit_price int ,
+	unit_cost int ) ;
+
+load data local infile 'C://Users//Samrath//Desktop//50000 Sales Records.csv' into table Sales fields terminated by ',' lines terminated by '\n' ;
+
+delete from Sales where region = "Region" ;
+
+#TASK 1.2 - SubTask B
+
+set profiling = 1 ;
+
+1.Show details of all records sold in India . (equality query)
+
+Select item_type ,sale_channel, priority , order_id , unit_sold , unit_price , unit_cost from Sales where country = "India" ;
+
+Show profiles ;
+
+Avg_Time = 1.939
+
+
+2.Show details of records that were sold in Belgium with a profit between 100 and 50k. (range query)
+
+Select item_type , priority , order_id , sale_channel from Sales where country = "Belgium" and (unit_price - unit_cost)*unit_sold between 100 and 50000 ;
+
+Show profiles ;
+
+Avg_Time = 1.876
+
+3.Update the unit_price of products bought online in Italy and increase the price by 50 
+
+Update Sales set unit_price = unit_price + 50 where country = "Italy" ;
+
+Show profiles ;
+
+Avg_Time = 3.53
+
+4.increase unit_sold in India by 1 where units sold are between 100 and 50k ;
+
+Update Sales set unit_sold = unit_sold + 1 where country = "India" and unit_sold between 100 and 500000 ;
+
+Show profiles ;
+
+Avg_Time = 3.72
+
+5.Insert query 
+
+insert into Sales values ("Asia" , "India1" , "vegetable" , "offline" , "M" , 12345 , 12, 12 ,12) ;
+insert into Sales values ("Asia" , "India2" , "vegetable" , "offline" , "M" , 12346 , 12, 12 ,12) ;
+insert into Sales values ("Asia" , "India3" , "vegetable" , "offline" , "M" , 12347 , 12, 12 ,12) ;
+insert into Sales values ("Asia" , "India4" , "vegetable" , "offline" , "M" , 12348 , 12, 12 ,12) ;
+insert into Sales values ("Asia" , "India5" , "vegetable" , "offline" , "M" , 12349 , 12, 12 ,12) ;
+
+Show profiles ;
+
+Avg_Time = 0.085
+
+#TASK 1.3 - SubTask C
+
+Create table new_sales like Sales ;
+insert new_sales select * from Sales ;
+
+create index ind on new_Sales (country) ;
+
+
+#TASK 1.4 - SubTask D
+
+1.
+Select item_type ,sale_channel, priority , order_id , unit_sold , unit_price , unit_cost from new_sales where country = "India" ;
+
+Show profiles ;
+
+Avg_Time = 0.1056
+
+2.
+Select item_type , priority , order_id , sale_channel from new_sales where country = "Belgium" and (unit_price - unit_cost)*unit_sold between 100 and 50000 ;
+
+Show profiles ;
+
+Avg_Time = 0.2103
+
+3.
+Update new_sales set unit_price = unit_price + 50 where country = "Italy" ;
+
+Show profiles ;
+
+Avg_Time = 4.56
+
+4.
+Update new_sales set unit_sold = unit_sold + 1 where country = "India" and unit_sold between 100 and 500000 ;
+
+Show profiles ;
+
+Avg_Time = 4.07
+
+5. 
+insert into new_sales values ("Asia" , "India1" , "vegetable" , "offline" , "M" , 12345 , 12, 12 ,12) ;
+insert into new_sales values ("Asia" , "India2" , "vegetable" , "offline" , "M" , 12346 , 12, 12 ,12) ;
+insert into new_sales values ("Asia" , "India3" , "vegetable" , "offline" , "M" , 12347 , 12, 12 ,12) ;
+insert into new_sales values ("Asia" , "India4" , "vegetable" , "offline" , "M" , 12348 , 12, 12 ,12) ;
+insert into new_sales values ("Asia" , "India5" , "vegetable" , "offline" , "M" , 12349 , 12, 12 ,12) ;
+
+Show profiles ;
+
+Avg_Time = 0.2451
+
+#Task 1.5 - SubTask D
+
+Key Inferences Drawn from the timings -
+
+1.The first table without index takes more time in query operations or Select Statements compared to the second table having index .
+The table without index is taking approx 5 times more time.
+
+2.The first table without index takes less time in Update and Insert Statements compared to the second table having index .
+The table with index is taking approx 1.5 times more time for Update operations and 2 times more time for Insert operations .
+

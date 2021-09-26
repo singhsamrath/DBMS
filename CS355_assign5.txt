@@ -1,0 +1,83 @@
+//Name-Samrathpreet Singh Randhawa
+//RollNo-1801CS43
+
+#TaskA
+
+mysql -u root -p
+set global local_infile=1;
+quit
+
+mysql --local-infile = 1 -u root -p
+Grant all privileges on dblab.* to 'scot'@'localhost' ;
+quit
+
+mysql --local-infile = 1 -u scot -p
+
+alter table sp add dos date ;
+alter table suppliers add dob date ;
+
+//changed the value of every entry using following commands with random values;
+
+update sp set dos = adddate("2010-12-31" , interval (floor(rand() * 400) + 3450) day); 
+update suppliers set dob = adddate("1920-12-31" , interval (floor(rand() * 21887) + 9450) day);
+
+load data local infile 'prod_data.txt' into table products fields terminated by ',' lines terminated by '\n' ;
+load data local infile 'sup_data.txt' into table suppliers fields terminated by ',' lines terminated by '\n' ;
+
+
+
+#TaskB
+
+1.
+select * from suppliers
+where dob = (select max(dob) from suppliers) ;
+
+2.
+select sid from suppliers
+where timestampdiff(year , dob , curdate())  < 30 ;
+
+3.
+select city , avg(timestampdiff(year , dob , curdate())) as avrg_age
+from suppliers
+group by city ;
+
+4.
+select sname from suppliers
+where sid in (
+	select distinct sid from sp
+	where extract(year from dos) = 2020 ) ;
+
+5.
+select sname from suppliers
+where sid in (
+	select distinct sid from sp
+	where dos > "2019-08-15");
+
+6.
+select pname from products
+where pid in (
+	select pid from sp
+	where dos = (select max(dos) from sp) ) ;
+
+7.
+select sname from suppliers
+where sid in (
+	select a.sid from sp as a , sp as b
+	where a.sid = b.sid and a.pid != b.pid and 
+	abs(datediff(a.dos , b.dos)) <= 30) ;
+
+8.
+select * from products
+where pid in (
+	select pid from 
+	(select * from products natural join sp) as temp
+	where adddate(temp.dom , interval 1 year) <= temp.dos) ;
+
+9.
+select pid , warrantyperiod , repeat('*' , floor(warrantyperiod/10) + 1) as Rating from products;
+
+10.
+create view taskbten as 
+select city , sid from suppliers
+group by city
+having min(dob) ;
